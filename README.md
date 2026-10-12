@@ -1,6 +1,6 @@
 # Wandering Trader
 
-**Author: Griffin** | **Source version: 1.4.9**
+**Author: Griffin** | **Source version: 1.4.10**
 
 Configuration reference and examples. Requires CF, Expansion Market and Expansion AI; marker settings also require Expansion Navigation.
 
@@ -284,6 +284,45 @@ Use this instead for independent item Chance percentages with no total offer lim
 }
 ```
 
+### Three fixed spawn positions for all traders
+
+In the generated **Settings.json**, replace `"SpawnPositions": []` with three coordinates. This limits traders to those sites instead of sampling the whole map, provided their own `SpawnPositions` arrays in Traders.json are empty.
+
+```json
+{
+  "SpawnPositions": [
+    [4500, 0, 6500],
+    [7500, 0, 7500],
+    [9500, 0, 10500]
+  ]
+}
+```
+
+Merge this field into your existing Settings.json; do not replace the complete file with this fragment. The coordinates are examples, not verified campsites: replace them with three clear, usable locations on your server's map.
+
+Each coordinate is `[x, y, z]`, in metres. The server calculates terrain height, so `y` can be `0`. On each spawn attempt it randomly chooses **one of the three listed sites**. It does not choose a random location elsewhere on the map or spawn at all three at once. Camp orientation still varies.
+
+### Three fixed spawn positions for one trader
+
+To give only the food trader those sites, edit its existing entry inside the **Traders.json** `Traders` array and replace that entry's `SpawnPositions` field:
+
+```json
+{
+  "Id": "food",
+  "SpawnPositions": [
+    [4500, 0, 6500],
+    [7500, 0, 7500],
+    [9500, 0, 10500]
+  ]
+}
+```
+
+This is an edit fragment, not a complete trader definition. Keep the trader's other fields and Items. A nonempty per-trader list overrides the shared Settings.json list; other traders keep using their own lists or the shared list.
+
+Site checks still apply to fixed positions: terrain, objects, exclusions, map margins, player distance and previous-camp distance can reject them. If all listed sites are unsuitable, spawning fails and automatic visits retry after `FailedSpawnRetrySeconds`; there is no map-wide fallback. Stop the server before editing, restart, then use `!wt spawn` to test.
+
+To return to random map-wide spawning, set `SpawnPositions` to `[]` in **both** Settings.json and the affected trader entry. Emptying only the trader's list makes it use the shared list.
+
 ### Spawn exclusions
 
 Merge this into Settings.json to block sites within 300 metres of the example coordinates. Replace the coordinates with your own map location. An exclusion does not select spawn sites; use shared or per-trader SpawnPositions to restrict candidate sites.
@@ -306,3 +345,4 @@ Merge this into Settings.json to block sites within 300 metres of the example co
 ## Checking your changes
 
 Restart after editing. Use `!wt spawn` to try the configured traders and `!wt despawn` to remove them. If configuration fails, check server log lines starting `[WanderingTrader]`. Sale items and attachments must be present in Expansion Market categories, and Expansion `MarketSystemEnabled` must be enabled.
+
