@@ -1,6 +1,6 @@
 # Wandering Trader
 
-**Author: Griffin** | **Source version: 1.4.10**
+**Author: Griffin** | **Source version: 1.4.11**
 
 Configuration reference and examples. Requires CF, Expansion Market and Expansion AI; marker settings also require Expansion Navigation.
 
@@ -97,10 +97,12 @@ Minimum 0 with a positive maximum allows an empty visit. Both 0 disable count li
 | `MinQuantity` | Minimum contents in each purchased item, in native units: rounds, grams, millilitres, pills or uses. Normally at least 1. Paired -1/-1 means full native capacity. This does not set stock. |
 | `MaxQuantity` | Maximum contents per purchased item, at least the minimum and at most 100000. -1 with a positive minimum means up to full. Values are clamped to native item capacity. Magazines/ammunition use whole rounds. |
 | `RandomQuantity` | Integer 0 or 1. 0 uses the configured contents and stock ranges. 1 overrides both: contents roll from 1 to native capacity, and top-level stock rolls from 1 to the category maximum, capped at 10000. For attachments, only contents are applicable. |
-| `MinState` | Best permitted condition: `Pristine`, `Worn`, `Damaged` or `Badly damaged`. Default Pristine. |
-| `MaxState` | Worst permitted condition, same accepted states, no better than `MinState`. Default Pristine. Ruined items are excluded. |
-| `RandomState` | Integer 0 or 1. 0 uses the condition bounds. 1 ignores those bounds and randomly chooses among the four permitted conditions. |
+| `BestCondition` | Best permitted condition: `Pristine`, `Worn`, `Damaged` or `Badly damaged`. Default Pristine. |
+| `WorstCondition` | Worst permitted condition, same accepted states, no better than `BestCondition`. Default Pristine. Ruined items are excluded. |
+| `RandomCondition` | Integer 0 or 1. 0 uses the condition bounds. 1 ignores those bounds and randomly chooses among the four permitted conditions. |
 | `Attachments` | Array of included attachment definitions; `[]` means none. Each attachment has `ClassName`, contents/condition rules, random switches and its own nested `Attachments`. Maximum depth is three attachment levels. Use compatible slots; no ancestor cycles. |
+
+Existing `MinState`, `MaxState` and `RandomState` keys are automatically renamed to `BestCondition`, `WorstCondition` and `RandomCondition` at startup, including nested attachments. Their values are preserved and the previous file is saved as `Traders.json.bak`. Use only one naming style per condition within an item; specifying both an old and new name for the same condition is rejected. `RandomCondition` keeps the old RandomState behavior: 0 uses the configured condition range; 1 chooses from all four allowed conditions.
 
 Contents and condition roll once per visit, giving consistent quoted packages and delivered items. For magazines, configure compatible ammunition in the attachment tree to deliver loaded magazines; a magazine without ammunition attachments remains empty. Attachments have no independent chance or stock roll. If the same class appears in several packages for one trader, its contents/condition rules and attachment list must agree.
 
@@ -176,40 +178,40 @@ Each visit offers 2 or 3 of the configured item types. Sardine stock is 5–10 c
           "ClassName": "SardinesCan",
           "Chance": 100,
           "Attachments": [],
-          "MinState": "Pristine",
-          "MaxState": "Damaged",
+          "BestCondition": "Pristine",
+          "WorstCondition": "Damaged",
           "MinStock": 5,
           "MaxStock": 10,
           "MinQuantity": 50,
           "MaxQuantity": 250,
           "RandomQuantity": 0,
-          "RandomState": 0
+          "RandomCondition": 0
         },
         {
           "ClassName": "BakedBeansCan",
           "Chance": 90,
           "Attachments": [],
-          "MinState": "Pristine",
-          "MaxState": "Worn",
+          "BestCondition": "Pristine",
+          "WorstCondition": "Worn",
           "MinStock": 2,
           "MaxStock": 15,
           "MinQuantity": 50,
           "MaxQuantity": 250,
           "RandomQuantity": 0,
-          "RandomState": 0
+          "RandomCondition": 0
         },
         {
           "ClassName": "WaterBottle",
           "Chance": 80,
           "Attachments": [],
-          "MinState": "Pristine",
-          "MaxState": "Damaged",
+          "BestCondition": "Pristine",
+          "WorstCondition": "Damaged",
           "MinStock": 2,
           "MaxStock": 15,
           "MinQuantity": 200,
           "MaxQuantity": 1000,
           "RandomQuantity": 0,
-          "RandomState": 0
+          "RandomCondition": 0
         }
       ],
       "SpawnPositions": []
@@ -233,34 +235,34 @@ Add this complete item entry to a trader's `Items` array. The light and its batt
         {
           "ClassName": "Battery9V",
           "Attachments": [],
-          "MinState": "Pristine",
+          "BestCondition": "Pristine",
           "MinQuantity": -1,
-          "MaxState": "Pristine",
+          "WorstCondition": "Pristine",
           "MaxStock": -1,
           "MaxQuantity": -1,
           "MinStock": -1,
-          "RandomState": 0,
+          "RandomCondition": 0,
           "RandomQuantity": 0
         }
       ],
-      "MinState": "Pristine",
+      "BestCondition": "Pristine",
       "MinQuantity": -1,
-      "MaxState": "Pristine",
+      "WorstCondition": "Pristine",
       "MaxStock": -1,
       "MaxQuantity": -1,
       "MinStock": -1,
-      "RandomState": 0,
+      "RandomCondition": 0,
       "RandomQuantity": 0
     }
   ],
-  "MinState": "Pristine",
-  "MaxState": "Worn",
+  "BestCondition": "Pristine",
+  "WorstCondition": "Worn",
   "MinStock": 1,
   "MaxStock": 5,
   "MinQuantity": -1,
   "MaxQuantity": -1,
   "RandomQuantity": 0,
-  "RandomState": 0
+  "RandomCondition": 0
 }
 ```
 
