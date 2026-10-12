@@ -1,6 +1,6 @@
 # Wandering Trader
 
-**Author: Griffin** | **Source version: 1.4.11**
+**Author: Griffin** | **Source version: 1.4.12**
 
 Configuration reference and examples. Requires CF, Expansion Market and Expansion AI; marker settings also require Expansion Navigation.
 
@@ -9,7 +9,7 @@ Configuration reference and examples. Requires CF, Expansion Market and Expansio
 1. Start the server. At mission startup it immediately creates any missing `WanderingTrader/Settings.json` and `WanderingTrader/Traders.json` inside the directory selected by the server's `-profiles` argument.
 2. First-run configs include four enabled traders: clothing, weapons, food and medicine. Each offers 2–4 distinct item types, waits 60–120 minutes and stays for 60 minutes.
 3. To edit, stop the server, change the profile JSON files, then restart. The `Traders.json` beside this README is an example export; the server reads the profile copy. Existing files are retained. Invalid configs are logged instead of silently replaced.
-4. Add your Steam64 ID as a string to Expansion AI's `Admins` setting. With `EnableDebugCommands` enabled, use `!wt spawn` to spawn all available enabled traders immediately or `!wt despawn` to remove all active camps. `!wt` shows usage. Ordinary players cannot use these commands.
+4. Add your Steam64 ID as a string to `Admins` in this mod's profile `WanderingTrader/Settings.json`. With `EnableDebugCommands` enabled, use `!wt spawn` to spawn all available enabled traders immediately or `!wt despawn` to remove all active camps. `!wt` shows usage. Ordinary players cannot use these commands.
 
 JSON requires quoted field names, lowercase `true`/`false`, and no comments or trailing commas. Keep complete generated entries when editing; omitted fields in DayZ JSON do not reliably inherit all source defaults. Config changes are read at startup, with no live reload.
 
@@ -19,7 +19,8 @@ JSON requires quoted field names, lowercase `true`/`false`, and no comments or t
 | --- | --- | --- |
 | `ConfigVersion` | `1` | Settings schema version. Leave at 1. This is separate from the mod version and Traders schema. |
 | `Enabled` | `true` | Enable automatic visits. Set false for admin-triggered visits only; debug commands remain available. |
-| `EnableDebugCommands` | `true` | Allow authenticated Expansion AI admins to use the `!wt` commands. False disables spawning/despawning through chat. |
+| `Admins` | `[]` | Array of quoted 17-digit Steam64 IDs allowed to use debug commands. Empty or omitted means no admin access. This list is independent of Expansion AI admin permissions. |
+| `EnableDebugCommands` | `true` | Allow Steam64 IDs listed in this file's `Admins` array to use the `!wt` commands. False disables spawning/despawning through chat. |
 | `FailedSpawnRetrySeconds` | `60` | Wait after an unsuccessful automatic spawn before searching again. Integer seconds, 1–604800. |
 | `Show2DMarker` | `true` | Display each active camp on the map. Requires Expansion Navigation and server markers enabled. |
 | `Show3DMarker` | `true` | Display each active camp's marker in the world. Independent of the map marker switch; same Navigation requirements. |
@@ -110,15 +111,47 @@ Prices come from Expansion Market category settings, not these files. Ammo and l
 
 ## Configuration examples
 
+### One or more debug-command admins
+
+Edit **WanderingTrader/Settings.json** in the server profile. Add `Admins` beside `EnableDebugCommands`, or replace the existing empty array. The IDs below are examples; replace them with your own Steam64 IDs. Keep each ID quoted as a string, not a JSON number.
+
+One admin:
+
+```json
+{
+  "EnableDebugCommands": true,
+  "Admins": ["76561198000000001"]
+}
+```
+
+Multiple admins:
+
+```json
+{
+  "EnableDebugCommands": true,
+  "Admins": [
+    "76561198000000001",
+    "76561198000000002",
+    "76561198000000003"
+  ]
+}
+```
+
+These are edit fragments; keep the rest of Settings.json. Stop the server before editing and restart afterward. Each ID must contain exactly 17 digits, without spaces. Use Steam64 IDs, not player names or hashed DayZ IDs. To remove access, remove that ID from the array; `"Admins": []` grants nobody access. Existing configs without Admins also grant nobody access until you add the list. Expansion AI's admin list does not grant access to this mod's commands.
+
+Listed admins can use `!wt spawn`, `!wt despawn` and `!wt` after startup. Setting `EnableDebugCommands` to false disables debug spawning/despawning regardless of the list. Automatic trader visits do not require an admin to be configured.
+
+
 ### Settings.json: map marker only, no global notification
 
-This is a complete Settings.json example. Automatic visits and admin commands remain enabled. Change the three visibility switches independently.
+This is a complete Settings.json example. Automatic visits are enabled. Debug commands are enabled but require your IDs in Admins. Change the three visibility switches independently.
 
 ```json
 {
   "ConfigVersion": 1,
   "Enabled": true,
   "EnableDebugCommands": true,
+  "Admins": [],
   "FailedSpawnRetrySeconds": 60,
   "Show2DMarker": true,
   "Show3DMarker": false,
